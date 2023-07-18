@@ -12,6 +12,9 @@ export const Container = styled.button`
   border-radius: 1rem;
   font-weight: 500;
 
+  font-family: 'Roboto Slab', serif;
+  font-size: 1.6rem;
+
   &:disabled {
     opacity: 0,5;
   }
