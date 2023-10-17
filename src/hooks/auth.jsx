@@ -1,4 +1,5 @@
-import { createContext, useContext, useState } from "react";
+/* eslint-disable no-empty */
+import { createContext, useContext, useEffect, useState } from "react";
 import { api } from '../services/api'
 
 export const AuthContext = createContext({})
@@ -13,7 +14,10 @@ function AuthProvider({ children }) {
       const response = await api.post("/sessions", { email, password })
       const { user, token } = response.data
 
-      api.defaults.headers.authorization = `Bearer ${token}`
+      localStorage.setItem("@rocketnotes:user", JSON.stringify(user))
+      localStorage.setItem("@rocketnotes:token", token)
+
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`
       setData({user, token})
 
     } catch (error) {
@@ -25,8 +29,41 @@ function AuthProvider({ children }) {
     }
   }
 
+  function signOut() {
+    localStorage.removeItem("@rocketnotes:token")
+    localStorage.removeItem("@rocketnotes:user")
+    setData({})
+  }
+
+  async function updateProfile({ user }) {
+
+    try {
+      await api.put('/users', user)
+      localStorage.setItem("@rocketnotes:user", JSON.stringify(user))
+      setData({ user, token: data.token})
+      alert('Perfil atualizado')
+      
+    } catch (error) {
+      if (error.response) {
+        alert(error.response.data.message)
+      } else {
+        alert('Não foi possível eatualizar o perfil.')
+      }
+    }
+  }
+
+  useEffect(() => {
+    const token = localStorage.getItem("@rocketnotes:token")
+    const user = localStorage.getItem("@rocketnotes:user")
+
+    if(token && user) {
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+      setData({ token, user: JSON.parse(user)})
+    }
+  }, [])
+
   return (
-    <AuthContext.Provider value={{ signIn, user: data.user }}>
+    <AuthContext.Provider value={{ signIn, signOut, updateProfile, user: data.user }}>
       {children}
     </AuthContext.Provider>
   )
