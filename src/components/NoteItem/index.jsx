@@ -5,7 +5,7 @@ import { Container } from "./styles";
 // eslint-disable-next-line react/prop-types
 export function NoteItem({ isNew, value, onClick, ...rest}){
   return(
-    <Container isNew={isNew}>
+    <Container $isNew={isNew}>
       <input 
         type="text" 
         value={value}
