@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-target-blank */
 import { useEffect, useState} from "react"
 import { Container, Links, Content } from "./style"
 import { useParams, useNavigate } from "react-router-dom";
@@ -17,7 +18,15 @@ export function Details() {
   const [data, setData] = useState(null)
   
   function handleBack() {
-    navigate(`/`)
+    navigate(-1)
+  }
+
+  async function handleRemove() {
+    const confirm = window.confirm("Deseja realmente remover a nota?")
+    if(confirm) {
+      await api.delete(`/notes/${params.id}`)
+      navigate(-1)
+    }
   }
 
   useEffect(() => {
@@ -26,6 +35,7 @@ export function Details() {
       setData(response.data)
     }
     fetchNote()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   
   console.log(data)
@@ -39,7 +49,10 @@ export function Details() {
           <main>
             <Content>
               
-              <ButtonText title={"Excluir nota"}/>
+              <ButtonText 
+                title={"Excluir nota"}
+                onClick={handleRemove}  
+              />
               <h1>
                 {data.title}
               </h1>
@@ -54,7 +67,7 @@ export function Details() {
                     {
                       data.links.map(link => (
                         <li key={String(link.id)}>
-                          <a href={link.url}>
+                          <a href={link.url} target="_blank">
                             {link.url}
                           </a>
                         </li>
